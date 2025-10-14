@@ -1,0 +1,75 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+pu--
+title: "HW2"
+format: html
+---
+
+In the 1930s, the Home Owners’ Loan Corporation (HOLC) categorized neighborhoods according to an arbitrary estimate of safety relevant to real estate investing. Categories ranged from A (green), B (blue), C (yellow), D (red). This meant homes in the red category would rarely get home loans, over time creating wealth and health. This phenomenon is known as "redlining". Recently, there was a study finding negative effects of redlining on biodiversity observations in redlined communities. 
+
+In this project, we will investigate environmental (in)justice metrics and biodiversity observations in correlation with HOLC grades in Los Angeles, California, United States.
+
+```{r}
+# read in packages
+library(here)
+library(tmap)
+library(sf)
+library(tidyverse)
+```
+
+Part 1: Explore historical redlining in Los Angeles and its legacy on present-day environmental justice
+
+1. Create a map of historical redlining neighborhoods, including:
+- neighborhoods colored by HOLC grade
+- an appropriate base map
+- a clear title and legend
+
+```{r}
+# read in HOLC data
+holc <- st_read(here("data", "mapping-inequality", "mapping-inequality-los-angeles.json"))
+unique(holc$fill)
+
+ej_screen <- st_read(here("data", "ejscreen","EJSCREEN_2023_BG_StatePct_with_AS_CNMI_GU_VI.gdb")) %>% 
+  select(ID, STATE_NAME, ST_ABBREV, CNTY_NAME, REGION, ACSTOTPOP, LOWINCPCT, P_PM25, P_LIFEEXPPCT, Shape_Length, Shape_Area, Shape)
+```
+
+```{r}
+# map of neighborhood grades
+tm_shape(holc) +
+  tm_polygons(fill = "fill") +
+  tm_basemap("CartoDB.PositronNoLabels") +
+  tm_add_legend(labels = c("Grade A", "Grade B", "Grade C", "Grade D"),
+                fill = c("#76a865","#7cb5bd","#ffff00","#d9838d"),
+                title = "HOLC Grade Level",
+                position = tm_pos_in("right", "bottom")) +
+  tm_title("HOLC Neighborhood Grades in Los Angeles") +
+  tm_scalebar(position = tm_pos_in("right", "top")) +
+  tm_compass(position = tm_pos_in("left", "bottom"))
+```
+
+```{r}
+# summary table 
+
+# combine ej screen data and holc data
+
+# check if crs match
+st_crs(ej_screen) == st_crs(holc) # FALSE
+ej_screen_transform <- st_transform(ej_screen, crs = st_crs(holc))
+st_crs(ej_screen_transform) == st_crs(holc) # now true
+
+# check if both are sf objects
+class(holc)
+class(ej_screen)
+
+st_crs(ej_screen_transform)
+st_crs(holc)
+
+# join 
+ej_holc <- st_join(holc, ej_screen_transform, left = TRUE)
+
+
+```
+
