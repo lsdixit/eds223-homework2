@@ -13,6 +13,7 @@ Environmental justice data are sourced from an unofficial version of [EJ Screen]
 - [eds223-homework.Rproj](https://github.com/lsdixit/eds223-homework2/blob/main/eds223-homework2.Rproj) : Project file.
 - [HW2.html](https://github.com/lsdixit/eds223-homework2/blob/main/HW2.html) : Rendered project as html page.
 - [HW2.pdf](https://github.com/lsdixit/eds223-homework2/blob/main/HW2.pdf) : Rendered project as pdf.
+- [figs](https://github.com/lsdixit/eds223-homework2/tree/main/figs) : This folder contains all image outputs from the project.
 - .gitignore/data/ejscreen, gbif-birds-LA, mapping-inequality : data are not pushed to GitHub. If recreating this repository, this is the suggested data structure.
 
 # Author
