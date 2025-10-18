@@ -11,6 +11,8 @@ Environmental justice data are sourced from an unofficial version of [EJ Screen]
 - [HW2_files](https://github.com/lsdixit/eds223-homework2/tree/main/HW2_files) : Folder for rendering html.
 - [eds223-homework.Rproj](https://github.com/lsdixit/eds223-homework2/blob/main/eds223-homework2.Rproj) : Project file.
 - [HW2.html](https://github.com/lsdixit/eds223-homework2/blob/main/HW2.html) : Rendered project as html page.
+- [HW2.pdf](https://github.com/lsdixit/eds223-homework2/blob/main/HW2.pdf) : Rendered project as pdf.
+- .gitignore/data/ejscreen, gbif-birds-LA, mapping-inequality : data are not pushed to GitHub. If recreating this repository, this is the suggested data structure.
 
 # Author
 This work was done by Leela Dixit, with assistance from students in EDS223, Annie Adams, and Ale Vidal Meza. 
