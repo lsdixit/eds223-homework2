@@ -30,7 +30,8 @@ First we will visualize where historical HOLC grades were mapped in Los Angeles,
 #| output: false
 
 # read in HOLC data
-holc <- st_make_valid(st_read(here("data", "mapping-inequality", "mapping-inequality-los-angeles.json")))
+holc <- st_make_valid(st_read(here("data", "mapping-inequality", 
+                                   "mapping-inequality-los-angeles.json")))
 ```
 
 ```{r}
@@ -44,7 +45,8 @@ unique(holc$fill)
 # read in ej screen data
 ej_screen <- st_make_valid(st_read(here("data", "ejscreen","EJSCREEN_2023_BG_StatePct_with_AS_CNMI_GU_VI.gdb"))) %>% 
 # select columns of interest to make wrangling use less memory
-  select(ID, STATE_NAME, ST_ABBREV, CNTY_NAME, REGION, ACSTOTPOP, LOWINCPCT, P_PM25, P_LIFEEXPPCT) %>% 
+  select(ID, STATE_NAME, ST_ABBREV, CNTY_NAME, REGION, ACSTOTPOP, LOWINCPCT, 
+         P_PM25, P_LIFEEXPPCT) %>% 
   filter(CNTY_NAME == "Los Angeles County")
 ```
 
@@ -108,7 +110,7 @@ We can see the borders of our HOLC data do not perfectly match our census block 
 
 ```{r}
 # join spatially 
-# some ej_screen data have 2 or more HOLC grades associated to them, so we join using st_within
+# some ej_screen data have 2+ HOLC grades associated to them, use st_within
 ej_holc <- st_join(ej_screen, holc_transform, join = st_within) %>% 
   st_drop_geometry()
 
