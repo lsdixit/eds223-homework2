@@ -3,7 +3,9 @@ output: html_document
 editor_options: 
   chunk_output_type: console
 title: "Exploring the Legacy of Redlining"
-format: html
+author: Leela Dixit
+date: "October 18, 2025"
+format: pdf
 ---
 
 In the 1930s, the Home Owners’ Loan Corporation (HOLC) categorized neighborhoods according to an arbitrary estimate of safety relevant to real estate investing. Categories ranged from A (green), B (blue), C (yellow), D (red). This meant homes in the red category would rarely get home loans, over time creating wealth and health. This phenomenon is known as "redlining". Recently, there was a study finding negative effects of redlining on biodiversity observations in redlined communities. 
@@ -51,8 +53,10 @@ ej_screen <- st_make_valid(st_read(here("data", "ejscreen","EJSCREEN_2023_BG_Sta
 ```
 
 ```{r}
+#| output: false
+
 # map of neighborhood grades
-tm_shape(holc) +
+grade_map <- tm_shape(holc) +
   tm_polygons(fill = "fill") +
   tm_basemap("CartoDB.PositronNoLabels") + # colors the basemap a certain color
   tm_add_legend(labels = c("Grade A", "Grade B", "Grade C", "Grade D"),
@@ -62,7 +66,12 @@ tm_shape(holc) +
   tm_title("HOLC Neighborhood Grades in Los Angeles") +
   tm_scalebar(position = tm_pos_in("right", "top")) +
   tm_compass(position = tm_pos_in("left", "bottom"))
+
+tmap_save(grade_map, here::here("figs", "holc_grade_map.png"))
 ```
+![](figs/holc_grade_map.png)
+
+We can see the clear distinctions of which areas were deemed a lower safety risk in the red and yellow areas. Green and blue were considered "safer" choices for home loans and other financial support.
 
 Next, we will compare the percentage of the population that occupy the area in each grade. We will determine size of population with percentages of census blocks.
 
@@ -96,16 +105,23 @@ if(st_crs(ej_screen) == st_crs(holc)) {
 
 Let's double check where our data overlap before joining. We want to look at all locations we have both a HOLC grade and environmental justice data for, and which locations we have census block info for but no HOLC grade.
 ```{r}
+#| output: false
+
 # Quick plot to check for data overlap
-tm_shape(holc_transform) +
+join_map <- tm_shape(holc_transform) +
   tm_polygons() +
 tm_shape(ej_screen) +
   tm_borders(col = "red", col_alpha = 0.1) +
 tm_shape(holc_transform) +
   tm_borders(col = "red") +
+  tm_title("Borders for ej_screen data and HOLC data") +
   tm_scalebar(position = tm_pos_in("right", "bottom")) +
   tm_compass(position = tm_pos_in("left", "bottom"))
+
+tmap_save(join_map, here::here("figs", "join_map.png"))
 ```
+![](figs/join_map.png)
+
 We can see the borders of our HOLC data do not perfectly match our census block data, and there are many areas of LA that we do not have a HOLC grade for.
 
 ```{r}
@@ -138,6 +154,8 @@ if (sum(duplicated(ej_holc$ID)) == 0) {
 
 Let's create a summary table to compare how many census block groups occupy each HOLC grade neighborhood.
 ```{r}
+#| output: false
+
 # summary table containing:
   # the percentage of census block groups that fall within each HOLC grade
   # Also include the percent of census black groups that don’t fall within a HOLC grade
@@ -158,8 +176,9 @@ ej_holc %>%
   gt() %>% 
   tab_header(title = "Census block by HOLC grade",
              subtitle = "HOLC neighborhoods only")
-
 ```
+![](figs/census_holc_la.png)
+![](figs/census_holc_only.png)
 When looking only at neighborhoods with a HOLC grade, we can see that the "desirable" grades of A and B combined have population sizes that make up less 10% of the population for HOLC graded neighborhoods, with grade A containing only about 2% of census blocks for HOLC grades. The highest percentage of census block groups are in grade C, followed by grade D. 
 Los Angeles County, however, largely has communities where there is no historic HOLC grading, with about 87% of census blocks being outside of a HOLC graded neighborhood.
 
@@ -185,13 +204,15 @@ ej_holc_sum_long <- ej_holc_sum %>%
 ```
 
 ```{r}
+#| output: false
+
 # refactor holc grades to plot colors easier
 ej_holc_sum <- ej_holc_sum %>% 
   mutate(grade = fct_relevel(grade,
                              "A", "B", "C", "D"))
 
 # plot mean income level by holc grade
-ggplot(ej_holc_sum, aes(x = grade, y = mean_income, fill = grade)) +
+income_holc_plot <- ggplot(ej_holc_sum, aes(x = grade, y = mean_income, fill = grade)) +
   geom_col() +
   scale_fill_manual(values = c("#76a865", "#7cb5bd", "#ffff00", "#d9838d")) +
   theme_bw() +
@@ -200,15 +221,19 @@ ggplot(ej_holc_sum, aes(x = grade, y = mean_income, fill = grade)) +
        title = "Percent of Los Angeles considered Low Income",
        subtitle = "By HOLC grade",
        fill = "HOLC Grade")
+
+ggsave(plot = income_holc_plot, here::here("figs", "income_plot.png"))
 ```
+![](figs/income_plot.png)
 
 We can see a very clear positive trend of percentage of the population that is considered low income with HOLC grade. As HOLC grade gets lower there is a higher percentage of the population that is low income. Redlined communities have an average of 25% higher population considered low income than HOLC grade A communities. Compared to communities outside of the HOLC grades, we still see the negative effects of redlining as both grade C and D neighborhoods have at least 10% higher low income populations.
 
 ```{r}
 #| warning: false
+#| output: false
 
 # plot percentile life expectancy and PM2.5 by holc grade
-ggplot(ej_holc_sum_long, aes(x = grade, y = value, fill = metric)) +
+ej_metric_holc_plot <- ggplot(ej_holc_sum_long, aes(x = grade, y = value, fill = metric)) +
   geom_bar(stat = "identity", position = position_dodge()) +
   scale_fill_manual(labels = c("%ile low life 
 expectancy", "%ile PM 2.5"),
@@ -219,7 +244,10 @@ expectancy", "%ile PM 2.5"),
        title = "Mean percentile for population with low life expectancy 
 and exposure to particulate matter 2.5",
       fill = "EJ Metric")
+
+ggsave(plot = ej_metric_holc_plot, here::here("figs", "metric_holc_plot.png"))
 ```
+![](figs/metric_holc_plot.png)
 
 We see a similar positive trend in low life expectancy with HOLC grade. As HOLC grade gets lower, the mean percentile of the population that is in an area where life expectancy is lower than national norms goes up. This means that on average, populations that live in redline'd or lower HOLC grade communities are predicted to have a lower life expectancy compared to national norms. Compared to neighborhoods with no HOLC grade, redlined communities continue to have a higher percentile of community with lower life expectancy, once again showing the long lasting negative effects of redlining.
 We don't see as strong of a positive trend for the percentile of particulate matter in the air, but as HOLC grade gets lower we do see a slight increase in inhalable particles that are 2.5 micrometers or smaller. This could be to general air quality in Los Angeles being poor and air movement being somewhat homogeneous between neighborhoods.
@@ -270,9 +298,13 @@ bird_holc_percent <- bird_holc %>%
   group_by(grade) %>% 
   summarise(n = n()) %>% 
   mutate(percent = (n / sum(n))*100)
+```
+
+```{r}
+#| output: false
 
 # plot percents
-ggplot(bird_holc_percent, aes(x = grade, y = percent, fill = grade)) +
+bird_holc_plot <- ggplot(bird_holc_percent, aes(x = grade, y = percent, fill = grade)) +
   geom_col() +
   scale_fill_manual(values = c("#76a865", "#7cb5bd", "#ffff00", "#d9838d")) +
   theme_bw() +
@@ -280,7 +312,10 @@ ggplot(bird_holc_percent, aes(x = grade, y = percent, fill = grade)) +
        y = "Bird observations (%)",
        title = "Percent of total bird observations by HOLC grade in Los Angeles",
        fill = "HOLC grade")
+
+ggsave(plot = bird_holc_plot, here::here("figs", "bird_plot.png"))
 ```
+![](figs/bird_plot.png)
 
 If you look at the paper Ellis-Soto et al. 2023, our results do not look the same as their results. In their methods, they describe calculating sampling density of bird records by accounting for HOLC grade area in km^2, and also log transformed their data. We simply looked at the raw samples and got total percent of observations by grade. 
 

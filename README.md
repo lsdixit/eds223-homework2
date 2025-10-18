@@ -1,4 +1,5 @@
-# EDS223 - Homework #1 Leela Dixit
+# Exploring the Legacy of Redlining in Los Angeles
+## EDS223 - Homework #2 Leela Dixit
 
 This repository contains all code and outputs for the second homework assignment for EDS223 - Geospatial Analysis and Remote Sensing for the UCSB MEDS program. This project focuses on exploring legacy effects of redlining on environmental justice metrics and bird biodiversity data. 
 
